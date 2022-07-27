@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "test": "vitest",
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
     "release": "npm run build && release-it"
   },
   "devDependencies": {
