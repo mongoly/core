@@ -1,13 +1,10 @@
 # @mongoly/core
 The core of mongoly. This library includes all the primary functionality and goals of this project.
-
 ## Installation
 ```bash
 npm install mongodb @mongoly/core
 ```
-
-## Primary Usage
-
+## Usage
 ```ts
 import { MongoClient } from 'mongodb';
 import { ensureJSONSchema, ensureIndexes } from '@mongoly/core';
@@ -35,3 +32,8 @@ async function bootstrap() {
   await collection.insertOne({ name: 'Jane', age: '27' }) // Document Validation Error 
 }
 ```
+## Whats left?
+If you have anything else in mind just let me know, but remember the library is meant to be a lightweight utility/wrapper for MongoDB.
+- Create a transformer for JSON schema document validation errors to make displaying them easier.
+## Ecosystem
+- [`@mongoly/nestjs`](https://www.npmjs.com/package/@mongoly/nestjs): A NestJS wrapper for mongoly.
