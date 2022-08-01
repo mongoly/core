@@ -17,8 +17,12 @@ export type BsonType =
   | "long"
   | "decimal";
 
+export type CommonKeywords = {
+  description?: string;
+};
+
 export type NumberKeywords = {
-  bsonType?: "double" | "int" | "long" | "decimal";
+  bsonType: "double" | "int" | "long" | "decimal" | "number";
   multipleOf?: number;
   maximum?: number;
   exlcusiveMaximum?: number;
@@ -52,24 +56,32 @@ export type ArrayKeywords = {
   uniqueItems?: boolean;
 };
 
+export type EnumKeywords = {
+  enum: unknown[];
+};
+
 export type GenericKeywords = {
-  bsonType?: BsonType | BsonType[];
-  description?: string;
-  enum?: unknown[];
+  bsonType: BsonType | BsonType[];
+};
+
+export type JSONSchemaNumber = CommonKeywords & NumberKeywords;
+export type JSONSchemaString = CommonKeywords & StringKeywords;
+export type JSONSchemaObject = CommonKeywords & ObjectKeywords;
+export type JSONSchemaArray = CommonKeywords & ArrayKeywords;
+export type JSONSchemaEnum = CommonKeywords & EnumKeywords;
+export type JSONSchemaGeneric = CommonKeywords & GenericKeywords;
+
+export type JSONSchema =
+  | JSONSchemaNumber
+  | JSONSchemaString
+  | JSONSchemaObject
+  | JSONSchemaArray
+  | JSONSchemaEnum
+  | JSONSchemaGeneric;
+
+export type JSONSchemaComposition = {
   allOf?: JSONSchema[];
   anyOf?: JSONSchema[];
   oneOf?: JSONSchema[];
   not?: JSONSchema;
 };
-
-export type JSONSchemaNumber = GenericKeywords & NumberKeywords;
-export type JSONSchemaString = GenericKeywords & StringKeywords;
-export type JSONSchemaObject = GenericKeywords & ObjectKeywords;
-export type JSONSchemaArray = GenericKeywords & ArrayKeywords;
-
-export type JSONSchema =
-  | GenericKeywords
-  | JSONSchemaNumber
-  | JSONSchemaString
-  | JSONSchemaObject
-  | JSONSchemaArray;
