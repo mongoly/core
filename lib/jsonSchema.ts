@@ -61,7 +61,7 @@ export type EnumKeywords = {
 };
 
 export type GenericKeywords = {
-  bsonType: BsonType | BsonType[];
+  bsonType?: BsonType | BsonType[];
 };
 
 export type JSONSchemaNumber = CommonKeywords & NumberKeywords;
