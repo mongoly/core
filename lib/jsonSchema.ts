@@ -17,8 +17,8 @@ export type BsonType =
   | "long"
   | "decimal";
 
-export type CommonKeywords = {
-  description?: string;
+export type EnumKeywords = {
+  enum: unknown[];
 };
 
 export type NumberKeywords = {
@@ -56,11 +56,11 @@ export type ArrayKeywords = {
   uniqueItems?: boolean;
 };
 
-export type EnumKeywords = {
-  enum: unknown[];
+export type CommonKeywords = {
+  description?: string;
 };
 
-export type GenericKeywords = {
+export type AnyKeywords = {
   bsonType?: BsonType | BsonType[];
 };
 
@@ -69,7 +69,7 @@ export type JSONSchemaString = CommonKeywords & StringKeywords;
 export type JSONSchemaObject = CommonKeywords & ObjectKeywords;
 export type JSONSchemaArray = CommonKeywords & ArrayKeywords;
 export type JSONSchemaEnum = CommonKeywords & EnumKeywords;
-export type JSONSchemaGeneric = CommonKeywords & GenericKeywords;
+export type JSONSchemaAny = CommonKeywords & AnyKeywords;
 
 export type JSONSchema =
   | JSONSchemaNumber
@@ -77,7 +77,7 @@ export type JSONSchema =
   | JSONSchemaObject
   | JSONSchemaArray
   | JSONSchemaEnum
-  | JSONSchemaGeneric;
+  | JSONSchemaAny;
 
 export type JSONSchemaComposition = {
   allOf?: JSONSchema[];
