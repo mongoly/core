@@ -1,28 +1,71 @@
-export type BsonType =
-  | "double"
-  | "string"
-  | "object"
+// https://www.mongodb.com/docs/manual/reference/operator/query/jsonSchema/#json-schema
+// www.mongodb.com/docs/manual/reference/operator/query/type/#std-label-document-type-available-types
+// https://github.com/mongodb-js/ace-autocompleter/tree/main/lib/constants
+
+export type JSONType =
   | "array"
-  | "binData"
-  | "objectId"
-  | "bool"
   | "boolean"
-  | "date"
   | "null"
-  | "regex"
-  | "javascript"
+  | "number"
+  | "object"
+  | "string";
+
+type GenericBSONType =
+  | "array"
+  | "bool"
+  | "null"
   | "number"
   | "int"
-  | "timestamp"
+  | "decimal"
+  | "double"
   | "long"
-  | "decimal";
+  | "object"
+  | "string";
 
-export type EnumKeywords = {
-  enum: unknown[];
+type UniqueBSONType =
+  | "objectId"
+  | "timestamp"
+  | "date"
+  | "binData"
+  | "regex"
+  | "minKey"
+  | "maxKey"
+  | "javascript";
+
+export type BSONType = GenericBSONType | UniqueBSONType;
+
+type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
+
+type RequireAtLeastType<
+  JSONTypes extends JSONType,
+  GenericBSONTypes extends GenericBSONType,
+> = RequireAtLeastOne<{
+  type?: JSONTypes;
+  bsonType?: GenericBSONTypes;
+}>;
+
+type GenericKeywords = {
+  title?: string;
+  description?: string;
+  enum?: unknown[];
 };
 
-export type NumberKeywords = {
-  bsonType: "double" | "int" | "long" | "decimal" | "number";
+type CompositionKeywords = {
+  allOf?: JSONSchema[];
+  anyOf?: JSONSchema[];
+  oneOf?: JSONSchema[];
+  not?: JSONSchema;
+};
+
+type BooleanKeywords = RequireAtLeastType<"boolean", "bool">;
+
+type NumberKeywords = RequireAtLeastType<
+  "number",
+  "double" | "int" | "long" | "decimal" | "number"
+> & {
   multipleOf?: number;
   maximum?: number;
   exlcusiveMaximum?: number;
@@ -30,25 +73,23 @@ export type NumberKeywords = {
   exclusiveMinimum?: number;
 };
 
-export type StringKeywords = {
-  bsonType: "string";
+type StringKeywords = RequireAtLeastType<"string", "string"> & {
   maxLength?: number;
   minLength?: number;
   pattern?: string;
 };
 
-export type ObjectKeywords = {
-  bsonType: "object";
+type ObjectKeywords = RequireAtLeastType<"object", "object"> & {
   maxProperties?: number;
   minProperties?: number;
   required?: string[];
   additionalProperties?: boolean | JSONSchema;
   properties?: Record<string, JSONSchema>;
   patternProperties?: Record<string, JSONSchema>;
+  dependencies?: Record<string, string[]>;
 };
 
-export type ArrayKeywords = {
-  bsonType: "array";
+type ArrayKeywords = RequireAtLeastType<"array", "array"> & {
   additionalItems?: boolean | JSONSchema;
   items?: JSONSchema | JSONSchema[];
   maxItems?: number;
@@ -56,32 +97,23 @@ export type ArrayKeywords = {
   uniqueItems?: boolean;
 };
 
-export type CommonKeywords = {
-  description?: string;
-};
+type BSONKeywords = { bsonType: UniqueBSONType | UniqueBSONType[] };
 
-export type AnyKeywords = {
-  bsonType?: BsonType | BsonType[];
-};
+type CommonKeywords = GenericKeywords & CompositionKeywords;
 
+export type JSONSchemaBoolean = CommonKeywords & BooleanKeywords;
 export type JSONSchemaNumber = CommonKeywords & NumberKeywords;
 export type JSONSchemaString = CommonKeywords & StringKeywords;
 export type JSONSchemaObject = CommonKeywords & ObjectKeywords;
 export type JSONSchemaArray = CommonKeywords & ArrayKeywords;
-export type JSONSchemaEnum = CommonKeywords & EnumKeywords;
-export type JSONSchemaAny = CommonKeywords & AnyKeywords;
+export type JSONSchemaBSON = CommonKeywords & BSONKeywords;
+export type JSONSchemaAny = {};
 
 export type JSONSchema =
+  | JSONSchemaAny
+  | JSONSchemaBoolean
   | JSONSchemaNumber
   | JSONSchemaString
   | JSONSchemaObject
   | JSONSchemaArray
-  | JSONSchemaEnum
-  | JSONSchemaAny;
-
-export type JSONSchemaComposition = {
-  allOf?: JSONSchema[];
-  anyOf?: JSONSchema[];
-  oneOf?: JSONSchema[];
-  not?: JSONSchema;
-};
+  | JSONSchemaBSON;
