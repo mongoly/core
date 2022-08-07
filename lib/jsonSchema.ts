@@ -36,7 +36,7 @@ export type NumericKeywords = {
   minimum?: number;
   exclusiveMinimum?: number;
   maximum?: number;
-  exlcusiveMaximum?: number;
+  exclusiveMaximum?: number;
   multipleOf?: number;
 };
 

@@ -1,7 +1,7 @@
 import { MongoServerError } from "mongodb";
 
 export const isDocumentValidationError = (
-  error: unknown
+  error: unknown,
 ): error is MongoServerError => {
   return (
     error instanceof MongoServerError &&
@@ -10,6 +10,6 @@ export const isDocumentValidationError = (
   );
 };
 
-export const isJSONSchemaValidationError = (error: MongoServerError) =>
+export const isClassValidationError = (error: MongoServerError) =>
   error.errInfo !== undefined &&
   error.errInfo.details.operatorName === "$jsonSchema";

@@ -12,7 +12,7 @@ import {
   deleteById,
   save,
   isDocumentValidationError,
-  isJSONSchemaValidationError,
+  isClassValidationError,
 } from "../lib";
 
 describe("JSON Schema & Indexes", () => {
@@ -70,7 +70,7 @@ describe("JSON Schema & Indexes", () => {
       const doc = { name: "John", age: "30" };
       await collection.insertOne(doc);
     } catch (e) {
-      if (isDocumentValidationError(e) && isJSONSchemaValidationError(e)) {
+      if (isDocumentValidationError(e) && isClassValidationError(e)) {
         const schemaErrors = e.errInfo!.details.schemaRulesNotSatisfied[0];
         const propertyErrors = schemaErrors.propertiesNotSatisfied;
         expect(propertyErrors[0].propertyName).toBe("age");
@@ -122,7 +122,7 @@ describe("Document Utils & UpdateBuilder", () => {
       {
         $set: { name: "Jane" },
       },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
     expect(result.ok).toBe(1);
     expect(result.value?.name).toBe("Jane");
@@ -145,7 +145,7 @@ describe("Document Utils & UpdateBuilder", () => {
       insertedId,
       {
         $set: { name: "Jane" },
-      }
+      },
     );
     expect(matchedCount).toBe(1);
     expect(modifiedCount).toBe(1);
@@ -217,7 +217,7 @@ describe("Document Utils & UpdateBuilder", () => {
     });
     const { matchedCount, modifiedCount } = await collection.updateOne(
       { _id: insertedId },
-      updates
+      updates,
     );
     expect(matchedCount).toBe(1);
     expect(modifiedCount).toBe(1);
