@@ -1,11 +1,11 @@
 import { isDeepStrictEqual } from "node:util";
 import type { Db } from "mongodb";
-import type { JSONSchemaObject } from "./jsonSchema";
+import type { JSONSchemaObject } from "./jsonSchemaExt";
 
 export const ensureJSONSchema = async (
   db: Db,
   collectionName: string,
-  jsonSchema: JSONSchemaObject
+  jsonSchema: JSONSchemaObject,
 ) => {
   const collections = await db
     .listCollections({ name: collectionName })
