@@ -79,7 +79,13 @@ export type MetadataKeywords = {
   description?: string;
 };
 
-export type JSONSchema = LogicalKeywords &
+export type TypeKeywords = {
+  type?: JSONType | JSONType[];
+  bsonType?: BSONType | BSONType[];
+};
+
+export type JSONSchema = TypeKeywords &
+  LogicalKeywords &
   ArrayKeywords &
   ObjectKeywords &
   ScalarKeywords &
