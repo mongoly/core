@@ -10,38 +10,38 @@ import type {
 
 export const findById = <TSchema, IdType = InferIdType<TSchema>>(
   collection: Collection<TSchema>,
-  documentId: IdType
+  documentId: IdType,
 ) => collection.findOne({ _id: documentId });
 
 export const findByIdAndUpdate = <TSchema, IdType = InferIdType<TSchema>>(
   collection: Collection<TSchema>,
   documentId: IdType,
   update: UpdateFilter<TSchema>,
-  options: FindOneAndUpdateOptions = {}
+  options: FindOneAndUpdateOptions = {},
 ) => collection.findOneAndUpdate({ _id: documentId }, update, options);
 
 export const findByIdAndDelete = <TSchema, IdType = InferIdType<TSchema>>(
   collection: Collection<TSchema>,
   documentId: IdType,
-  options: FindOneAndDeleteOptions = {}
+  options: FindOneAndDeleteOptions = {},
 ) => collection.findOneAndDelete({ _id: documentId }, options);
 
 export const updateById = <TSchema, IdType = InferIdType<TSchema>>(
   collection: Collection<TSchema>,
   documentId: IdType,
   update: UpdateFilter<TSchema>,
-  options: UpdateOptions = {}
+  options: UpdateOptions = {},
 ) => collection.updateOne({ _id: documentId }, update, options);
 
 export const deleteById = <TSchema, IdType = InferIdType<TSchema>>(
   collection: Collection<TSchema>,
-  documentId: IdType
+  documentId: IdType,
 ) => collection.deleteOne({ _id: documentId });
 
 export const save = <TSchema extends Document>(
   collection: Collection<TSchema>,
   doc: TSchema,
-  upsert = true
+  upsert = true,
 ) => updateById(collection, doc._id, { $set: doc }, { upsert });
 
 export type PopulateOptions = {
@@ -49,46 +49,29 @@ export type PopulateOptions = {
   foreignField: string;
   localField: string;
   as: string;
+  relationship: "one" | "many";
 };
 
-export const populate = async <TSchema, IdType = InferIdType<TSchema>>(
+export const populate = async <TSchema, IdType>(
   collection: Collection<TSchema>,
-  documentId: IdType,
-  populations: PopulateOptions[]
+  documentIdOrIds: IdType,
+  populations: PopulateOptions[],
 ) => {
-  const [populatedDoc] = await collection
-    .aggregate([
-      { $match: { _id: documentId } },
-      ...populations.map((populate) => ({
-        $lookup: {
-          from: populate.from,
-          localField: populate.localField,
-          foreignField: populate.foreignField,
-          as: populate.as,
-        },
-      })),
-    ])
-    .toArray();
-  return populatedDoc;
-};
-
-export const populateMany = async <TSchema, IdType = InferIdType<TSchema>>(
-  collection: Collection<TSchema>,
-  documentIds: IdType[],
-  populations: PopulateOptions[]
-) => {
-  const populatedDocs = await collection
-    .aggregate([
-      { $match: { _id: { $in: documentIds } } },
-      ...populations.map((populate) => ({
-        $lookup: {
-          from: populate.from,
-          localField: populate.localField,
-          foreignField: populate.foreignField,
-          as: populate.as,
-        },
-      })),
-    ])
-    .toArray();
-  return populatedDocs;
+  const cursor = collection.aggregate();
+  if (Array.isArray(documentIdOrIds))
+    cursor.match({ _id: { $in: documentIdOrIds } });
+  else cursor.match({ _id: documentIdOrIds });
+  for (const population of populations) {
+    cursor.lookup({
+      from: population.from,
+      localField: population.localField,
+      foreignField: population.foreignField,
+      as: population.as,
+    });
+    if (population.relationship === "one")
+      cursor.unwind({ path: population.as });
+  }
+  const results = await cursor.toArray();
+  if (Array.isArray(documentIdOrIds)) return results;
+  return results[0];
 };
