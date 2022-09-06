@@ -17,10 +17,10 @@ export type UpdateOperator =
   | "$setOnInsert"
   | "$unset";
 
-type UpdateStrategy = "Merge" | "Replace";
+type UpdateStrategy = "merge" | "replace";
 
 export class UpdateBuilder<TSchema extends Document = Document> {
-  private updateStrategy = "Merge";
+  private updateStrategy = "merge";
 
   private readonly currentUpdates = new Map<
     UpdateOperator,
@@ -34,15 +34,15 @@ export class UpdateBuilder<TSchema extends Document = Document> {
 
   add<
     Operator extends UpdateOperator,
-    Updates extends UpdateFilter<TSchema>[Operator]
+    Updates extends UpdateFilter<TSchema>[Operator],
   >(operator: Operator, newOperatorUpdates: Updates) {
     let operatorUpdates = this.currentUpdates.get(operator);
     if (!operatorUpdates) operatorUpdates = {};
     this.currentUpdates.set(
       operator,
-      this.updateStrategy === "Merge"
+      this.updateStrategy === "merge"
         ? { ...operatorUpdates, ...newOperatorUpdates }
-        : newOperatorUpdates
+        : newOperatorUpdates,
     );
     return this;
   }

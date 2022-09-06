@@ -1,48 +1,56 @@
-import type {
+import {
   Collection,
-  UpdateFilter,
-  UpdateOptions,
-  FindOneAndUpdateOptions,
-  FindOneAndDeleteOptions,
   Document,
   InferIdType,
+  FindOptions,
+  UpdateFilter,
+  UpdateOptions,
+  DeleteOptions,
+  FindOneAndUpdateOptions,
+  FindOneAndDeleteOptions,
 } from "mongodb";
 
-export const findById = <TSchema, IdType = InferIdType<TSchema>>(
+export const findById = <TSchema extends Document = Document>(
   collection: Collection<TSchema>,
-  documentId: IdType,
-) => collection.findOne({ _id: documentId });
+  documentId: InferIdType<TSchema>,
+  options?: FindOptions,
+) => {
+  return collection.findOne({ _id: documentId as any }, options);
+};
 
-export const findByIdAndUpdate = <TSchema, IdType = InferIdType<TSchema>>(
+export const updateById = <TSchema extends Document = Document>(
   collection: Collection<TSchema>,
-  documentId: IdType,
-  update: UpdateFilter<TSchema>,
-  options: FindOneAndUpdateOptions = {},
-) => collection.findOneAndUpdate({ _id: documentId }, update, options);
-
-export const findByIdAndDelete = <TSchema, IdType = InferIdType<TSchema>>(
-  collection: Collection<TSchema>,
-  documentId: IdType,
-  options: FindOneAndDeleteOptions = {},
-) => collection.findOneAndDelete({ _id: documentId }, options);
-
-export const updateById = <TSchema, IdType = InferIdType<TSchema>>(
-  collection: Collection<TSchema>,
-  documentId: IdType,
+  documentId: InferIdType<TSchema>,
   update: UpdateFilter<TSchema>,
   options: UpdateOptions = {},
-) => collection.updateOne({ _id: documentId }, update, options);
+) => collection.updateOne({ _id: documentId as any }, update, options);
 
-export const deleteById = <TSchema, IdType = InferIdType<TSchema>>(
+export const deleteById = <TSchema extends Document = Document>(
   collection: Collection<TSchema>,
-  documentId: IdType,
-) => collection.deleteOne({ _id: documentId });
+  documentId: InferIdType<TSchema>,
+  options: DeleteOptions = {},
+) => collection.deleteOne({ _id: documentId as any }, options);
 
-export const save = <TSchema extends Document>(
+export const findByIdAndUpdate = <TSchema extends Document = Document>(
   collection: Collection<TSchema>,
-  doc: TSchema,
+  documentId: InferIdType<TSchema>,
+  update: UpdateFilter<TSchema>,
+  options: FindOneAndUpdateOptions = {},
+) => collection.findOneAndUpdate({ _id: documentId as any }, update, options);
+
+export const findByIdAndDelete = <TSchema extends Document = Document>(
+  collection: Collection<TSchema>,
+  documentId: InferIdType<TSchema>,
+  options: FindOneAndDeleteOptions = {},
+) => collection.findOneAndDelete({ _id: documentId as any }, options);
+
+export const save = <TSchema extends Document = Document>(
+  collection: Collection<TSchema>,
+  document: TSchema,
   upsert = true,
-) => updateById(collection, doc._id, { $set: doc }, { upsert });
+) => {
+  return updateById(collection, document._id, { $set: document }, { upsert });
+};
 
 export type PopulateOptions = {
   from: string;
@@ -52,8 +60,8 @@ export type PopulateOptions = {
   relationship: "one" | "many";
 };
 
-export const populate = async <TSchema, IdType>(
-  collection: Collection<TSchema>,
+export const populate = async <IdType>(
+  collection: Collection,
   documentIdOrIds: IdType,
   populations: PopulateOptions[],
 ) => {
@@ -73,5 +81,6 @@ export const populate = async <TSchema, IdType>(
   }
   const results = await cursor.toArray();
   if (Array.isArray(documentIdOrIds)) return results;
-  return results[0];
+  const [result] = results;
+  return result;
 };

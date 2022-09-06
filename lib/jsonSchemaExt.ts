@@ -26,7 +26,7 @@ type RequireAtLeastTypes<
   bsonType?: BSONTypes;
 }>;
 
-// ? Should I also union `MetadataKeywords`?
+// TODO: Union `MetadataKeywords` neatly.
 
 export type JSONSchemaBoolean = RequireAtLeastTypes<"boolean", "bool">;
 export type JSONSchemaString = RequireAtLeastType<"string"> & StringKeywords;
